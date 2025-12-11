@@ -5,6 +5,8 @@ import Image from "next/image";
 import ReactMarkdown from "react-markdown";
 import { Copy, Check, ExternalLink, Sparkles, Key, ChevronDown, ChevronUp, AlertCircle, Zap, Wand2, Lamp, Eye, EyeOff } from "lucide-react";
 
+const NEXT_PUBLIC_API_URL = process.env.NEXT_PUBLIC_API_URL;
+
 const API_KEY_STORAGE = "promptgenie_api_key";
 
 interface PromptRequest {
@@ -161,6 +163,19 @@ export default function Home() {
   const apiKeyPanelRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    const warmBackend = async () => {
+      try {
+        await fetch(`${process.env.NEXT_PUBLIC_API_HOST}/api/health`);
+      } catch (error) {
+        console.log("Warm-up failed", error);
+      }
+    };
+  
+    warmBackend();
+  }, []);
+  
+
+  useEffect(() => {
     // Simulate a small delay to ensure localStorage is checked
     const stored = localStorage.getItem(API_KEY_STORAGE);
     if (stored) {
@@ -229,7 +244,7 @@ export default function Home() {
     setCopied(false);
     
     try {
-      const res = await fetch("http://localhost:8000/api/generate", {
+      const res = await fetch(`${NEXT_PUBLIC_API_URL}/api/generate`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
