@@ -165,7 +165,7 @@ export default function Home() {
   useEffect(() => {
     const warmBackend = async () => {
       try {
-        await fetch(`${process.env.NEXT_PUBLIC_API_HOST}/api/health`);
+        await fetch(`${NEXT_PUBLIC_API_URL}/api/health`);
       } catch (error) {
         console.log("Warm-up failed", error);
       }
