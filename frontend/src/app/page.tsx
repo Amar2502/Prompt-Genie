@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState, useRef } from "react";
+import Image from "next/image";
 import ReactMarkdown from "react-markdown";
 import { Copy, Check, ExternalLink, Sparkles, Key, ChevronDown, ChevronUp, AlertCircle, Zap, Wand2, Lamp, Eye, EyeOff } from "lucide-react";
 
@@ -149,6 +150,7 @@ export default function Home() {
   const [showKeyPanel, setShowKeyPanel] = useState(false);
   const [showApiKey, setShowApiKey] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [apiKeyLoading, setApiKeyLoading] = useState(true);
   const [prompt, setPrompt] = useState("");
   const [explanation, setExplanation] = useState("");
   const [error, setError] = useState("");
@@ -159,10 +161,13 @@ export default function Home() {
   const apiKeyPanelRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    // Simulate a small delay to ensure localStorage is checked
     const stored = localStorage.getItem(API_KEY_STORAGE);
     if (stored) {
       setForm((prev) => ({ ...prev, api_key: stored }));
     }
+    // Set loading to false after checking localStorage
+    setApiKeyLoading(false);
   }, []);
 
   useEffect(() => {
@@ -405,7 +410,10 @@ export default function Home() {
                 </a>
                 <button
                   type="button"
-                  onClick={() => setShowKeyPanel(false)}
+                  onClick={() => {
+                    setShowKeyPanel(false);
+                    setToast({ message: "✨ API key saved successfully!", type: "success" });
+                  }}
                   className="flex-1 rounded-lg bg-linear-to-r from-indigo-600 to-purple-600 px-3 py-2 text-xs font-medium text-white transition hover:shadow-lg hover:shadow-indigo-500/25 cursor-pointer"
                 >
                   Save
@@ -418,16 +426,24 @@ export default function Home() {
 
       <main className="relative mx-auto flex min-h-screen max-w-7xl flex-col gap-12 px-6 py-16 md:px-12 md:py-20">
         {/* Header with Magic Lamp */}
-        <div className="flex flex-col items-center gap-6 text-center">
-          <div className="relative">
-            <div className="absolute inset-0 -z-10 rounded-full bg-linear-to-r from-amber-500/20 to-yellow-500/20 blur-2xl" />
-            {/* <MagicLamp className="h-20 w-20 md:h-24 md:w-24" glowing={lampGlowing} /> */}
-          </div>
-          <div className="space-y-3">
-            <h1 className="bg-linear-to-r from-white via-indigo-100 to-purple-100 bg-clip-text text-5xl font-bold tracking-tight text-transparent md:text-6xl">
-              PromptGenie
-            </h1>
-            <h3>Your AI Prompt Wizard</h3>
+        <div className="w-full flex justify-center items-center py-4">
+          <div className="relative flex flex-col items-center text-center">
+            <div className="absolute inset-0 -z-10 flex items-center justify-center">
+              <div className="rounded-full bg-linear-to-r from-amber-500/20 to-yellow-500/20 blur-2xl w-48 h-48 md:w-56 md:h-56" />
+            </div>
+            <div className="flex items-center">
+              <Image
+                src="/logo.png"
+                alt="PromptGenie"
+                width={150}
+                height={150}
+                className="mx-auto"
+                priority
+              />
+              <h1 className="bg-linear-to-r from-white via-indigo-100 to-purple-100 bg-clip-text text-5xl font-bold tracking-tight text-transparent md:text-6xl text-center">
+                PromptGenie
+              </h1>
+            </div>
           </div>
         </div>
 
@@ -449,7 +465,14 @@ export default function Home() {
             </div>
 
             <form onSubmit={generatePrompt} className="space-y-5">
-              {!form.api_key.trim() && (
+              {apiKeyLoading ? (
+                <div className="rounded-lg border border-indigo-500/30 bg-indigo-500/10 p-4">
+                  <div className="flex items-center gap-3">
+                    <div className="h-5 w-5 animate-spin rounded-full border-2 border-indigo-400/30 border-t-indigo-400" />
+                    <span className="text-sm font-medium text-indigo-200">Loading API key...</span>
+                  </div>
+                </div>
+              ) : !form.api_key.trim() && (
                 <div className="rounded-lg border border-amber-500/30 bg-amber-500/10 p-4">
                   <div className="mb-2 flex items-center gap-2">
                     <AlertCircle className="h-4 w-4 text-amber-400" />
