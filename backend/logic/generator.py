@@ -20,7 +20,8 @@ def generate_prompt(req: PromptRequest):
     llm = ChatGoogleGenerativeAI(
         model="gemini-2.5-flash",
         google_api_key=req.api_key,
-        temperature=0.4
+        temperature=0.4,
+        max_retries=1
     )
 
     # Single LLM invocation; LangChain returns a message object.
